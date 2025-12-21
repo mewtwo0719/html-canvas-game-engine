@@ -1,4 +1,3 @@
-// src/engine/Game.ts
 import { Scene } from "./Scene";
 
 export class Game {
@@ -7,7 +6,15 @@ export class Game {
   scene: Scene;
   lastTime: number = 0;
 
-  constructor(canvasId: string, scene?: Scene) {
+  gameWidth: number; // fixed game resolution
+  gameHeight: number;
+
+  constructor(
+    canvasId: string,
+    scene?: Scene,
+    gameWidth = 800,
+    gameHeight = 600
+  ) {
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!canvas) throw new Error(`Canvas with id "${canvasId}" not found`);
     this.canvas = canvas;
@@ -18,13 +25,33 @@ export class Game {
 
     this.scene = scene || new Scene();
 
+    // Set fixed internal game resolution
+    this.gameWidth = gameWidth;
+    this.gameHeight = gameHeight;
+    this.canvas.width = this.gameWidth;
+    this.canvas.height = this.gameHeight;
+
     this.resize();
     window.addEventListener("resize", () => this.resize());
   }
 
   resize() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+    const windowRatio = window.innerWidth / window.innerHeight;
+    const gameRatio = this.gameWidth / this.gameHeight;
+
+    if (windowRatio > gameRatio) {
+      // Window is wider than game ratio → scale by height
+      this.canvas.style.height = `${window.innerHeight}px`;
+      this.canvas.style.width = `${window.innerHeight * gameRatio}px`;
+    } else {
+      // Window is taller than game ratio → scale by width
+      this.canvas.style.width = `${window.innerWidth}px`;
+      this.canvas.style.height = `${window.innerWidth / gameRatio}px`;
+    }
+
+    // Optional: center canvas
+    this.canvas.style.display = "block";
+    this.canvas.style.margin = "0 auto";
   }
 
   start() {

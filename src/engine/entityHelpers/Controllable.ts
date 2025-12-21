@@ -28,8 +28,9 @@ export class Controllable extends Entity {
       ...keys, // merge with user-specified keys
     };
   }
+  update(deltaTime?: number) {
+    super.update(deltaTime); // call Entity.update() to handle collisions, etc.
 
-  update() {
     const pressed = window["keys"] || {};
 
     if (this.keys.up.some((key) => pressed[key])) this.y -= this.speed;
