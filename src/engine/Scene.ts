@@ -1,12 +1,32 @@
-// src/engine/Scene.ts
 import { Entity } from "./Entity";
+import type { Game } from "./Game";
 
-export class Scene {
-  entities: Entity[] = [];
-  backgroundColor: string = "#000"; // default black
+export abstract class Scene {
+  protected game!: Game;
+  protected entities: Entity[] = [];
+  backgroundColor = "#000";
 
-  constructor(backgroundColor?: string) {
-    if (backgroundColor) this.backgroundColor = backgroundColor;
+  /** Called once when scene becomes active */
+  onEnter(game: Game): void {
+    this.game = game;
+  }
+
+  /** Called once when scene is removed */
+  onExit(): void {}
+
+  update(deltaTime: number): void {
+    for (const entity of this.entities) {
+      entity.update(deltaTime);
+    }
+  }
+
+  draw(ctx: CanvasRenderingContext2D): void {
+    ctx.fillStyle = this.backgroundColor;
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    for (const entity of this.entities) {
+      entity.draw(ctx);
+    }
   }
 
   add(entity: Entity) {
@@ -15,26 +35,5 @@ export class Scene {
 
   remove(entity: Entity) {
     this.entities = this.entities.filter((e) => e !== entity);
-  }
-
-  update(deltaTime?: number) {
-    for (const entity of this.entities) {
-      entity.update(deltaTime);
-    }
-  }
-
-  draw(ctx: CanvasRenderingContext2D) {
-    // Clear background
-    ctx.fillStyle = this.backgroundColor;
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-    // Draw entities
-    for (const entity of this.entities) {
-      entity.draw(ctx);
-    }
-  }
-
-  clear() {
-    this.entities = [];
   }
 }
